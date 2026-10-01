@@ -69,7 +69,7 @@ Everything below has a free tier, so the app can stay free to run.
 
 ## Data sources
 
-- **Carousel lane and stations:** stored as a local GeoJSON file in `/src/data/`. Station coordinates need to be collected and verified manually, since there is no official free API for this.
+- **Carousel lane and stations:** stored as local data in `/src/data/`. The initial pickup/drop-off order is based on the supplied DOTr route poster and the [EDSA Carousel reference site](https://edsacarousel.com/). Station coordinates and the lane geometry must be collected and verified manually before navigation features are enabled, since there is no official free API for this.
 - **Traffic:** real-time traffic is usually paid (Google, TomTom, HERE). Start with a simple ETA based on distance and time of day, then add a traffic API with a free tier once the MVP works.
 - **Flood:** there's no single clean source. Options are weather/rainfall data from Open-Meteo, official advisories, or a simple manual "flood alert" list that can be updated by hand. Treat flood info as a warning, not a guarantee.
 

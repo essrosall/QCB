@@ -1,0 +1,275 @@
+#root {
+  min-height: 100svh;
+}
+
+.app-shell {
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+}
+
+.app-header,
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 32px;
+  background: #fff;
+}
+
+.app-header {
+  border-bottom: 1px solid #d6d6d2;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: #6b6b67;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  letter-spacing: -0.03em;
+}
+
+.status-badge {
+  border: 1px solid #171717;
+  padding: 7px 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) 390px;
+}
+
+.map-panel {
+  position: relative;
+  min-height: 580px;
+  background: #dededb;
+}
+
+.map-view {
+  height: 100%;
+  min-height: 580px;
+  filter: grayscale(1);
+}
+
+.map-note {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #bdbdb8;
+  padding: 9px 11px;
+  background: rgb(255 255 255 / 92%);
+  font-size: 0.75rem;
+}
+
+.map-note-mark {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #171717;
+}
+
+.route-panel {
+  overflow: auto;
+  max-height: calc(100svh - 137px);
+  border-left: 1px solid #d6d6d2;
+  background: #fff;
+}
+
+.panel-intro,
+.route-list {
+  padding: 28px 26px;
+}
+
+.panel-intro {
+  border-bottom: 1px solid #e3e3df;
+}
+
+h2 {
+  max-width: 280px;
+  margin-bottom: 10px;
+  font-size: 1.7rem;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.intro-copy {
+  max-width: 310px;
+  margin-bottom: 0;
+  color: #646460;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.primary-action,
+.search-placeholder {
+  display: flex;
+  width: calc(100% - 52px);
+  align-items: center;
+  gap: 10px;
+  margin: 20px 26px 0;
+  padding: 13px 15px;
+  font-size: 0.9rem;
+}
+
+.primary-action {
+  justify-content: center;
+  border: 1px solid #171717;
+  color: #fff;
+  background: #171717;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.primary-action:hover {
+  background: #363636;
+}
+
+.primary-action:focus-visible {
+  outline: 2px solid #171717;
+  outline-offset: 3px;
+}
+
+.primary-action span {
+  font-size: 1.2rem;
+}
+
+.search-placeholder {
+  border: 1px solid #c9c9c5;
+  color: #777772;
+}
+
+.search-placeholder span:first-child {
+  color: #171717;
+  font-size: 1.2rem;
+}
+
+.route-list {
+  margin-top: 24px;
+  border-top: 1px solid #e3e3df;
+}
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+h3 {
+  margin-bottom: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.section-heading > span {
+  color: #777772;
+  font-size: 0.75rem;
+}
+
+.route-list ol {
+  position: relative;
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.route-list ol::before {
+  position: absolute;
+  top: 15px;
+  bottom: 15px;
+  left: 12px;
+  border-left: 1px dashed #a9a9a4;
+  content: "";
+}
+
+.route-list li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 34px;
+  color: #383835;
+  font-size: 0.82rem;
+}
+
+.station-number {
+  z-index: 1;
+  display: grid;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 25px;
+  place-items: center;
+  border: 1px solid #171717;
+  border-radius: 50%;
+  background: #fff;
+  color: #171717;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.app-footer {
+  border-top: 1px solid #d6d6d2;
+  color: #6b6b67;
+  font-size: 0.7rem;
+}
+
+@media (max-width: 850px) {
+  .app-header,
+  .app-footer {
+    padding: 18px 20px;
+  }
+
+  .workspace {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .map-panel,
+  .map-view {
+    min-height: 48svh;
+  }
+
+  .route-panel {
+    max-height: none;
+    border-top: 1px solid #d6d6d2;
+    border-left: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .app-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .status-badge {
+    padding: 6px 7px;
+    font-size: 0.6rem;
+  }
+}
