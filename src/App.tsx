@@ -8,7 +8,7 @@ import type { WalkingRoute } from './types/route'
 import type { Station } from './types/station'
 import { findNearestStation } from './utils/nearestStation'
 import { snapToRoute } from './utils/snapToRoute'
-import { getWalkingRoute } from './services/walkingRoute'
+import { getTravelRoute } from './services/walkingRoute'
 import { useGeolocation } from './hooks/useGeolocation'
 import { distanceInMeters } from './utils/distance'
 import './App.css'
@@ -375,16 +375,18 @@ function MapView({
   onWalkingRoute,
   onStationSelect,
   onMapLocationSelect,
+  transportMode,
 }: {
   location: Coordinates | null
   nearestStation: Station | null
   onWalkingRoute: (route: WalkingRoute | null, error: string | null) => void
   onStationSelect: (station: Station) => void
   onMapLocationSelect: (point: Coordinates) => void
+  transportMode: TransportMode
 }) {
   const mapElement = useRef<HTMLDivElement>(null)
   const map = useRef<L.Map | null>(null)
-  const userMarker = useRef<L.CircleMarker | null>(null)
+  const userMarker = useRef<L.Marker | null>(null)
   const nearestMarker = useRef<L.CircleMarker | null>(null)
   const walkingLine = useRef<L.Polyline | null>(null)
 
@@ -444,7 +446,7 @@ function MapView({
         [stationLocation.latitude, stationLocation.longitude],
         {
         icon: L.divIcon({
-          className: 'station-marker',
+          className: `station-marker station-marker-${(station.order - 1) % 5}`,
           html: `<span>${station.order}</span>`,
           iconSize: [26, 26],
           iconAnchor: [13, 13],
@@ -467,27 +469,40 @@ function MapView({
 
   useEffect(() => {
     if (!map.current || !location) {
+      userMarker.current?.remove()
+      userMarker.current = null
       return
     }
 
     userMarker.current?.remove()
-    userMarker.current = L.circleMarker(
+    const modeIcon = transportMode === 'walking'
+      ? '♙'
+      : transportMode === 'motorcycle'
+        ? '♢'
+        : transportMode === 'mixed'
+          ? '⇄'
+          : '▰'
+    userMarker.current = L.marker(
       [location.latitude, location.longitude],
       {
-        radius: 8,
-        color: '#ffffff',
-        weight: 3,
-        fillColor: '#171717',
-        fillOpacity: 1,
+        icon: L.divIcon({
+          className: `location-marker location-marker-${transportMode}`,
+          html: `<span>${modeIcon}</span>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15],
+        }),
       },
     )
-      .bindTooltip('Your location', { direction: 'top', offset: [0, -8] })
+      .bindTooltip(`${transportMode === 'walking' ? 'Walking' : transportMode} starting point`, {
+        direction: 'top',
+        offset: [0, -8],
+      })
       .addTo(map.current)
 
     map.current.setView([location.latitude, location.longitude], 14, {
       animate: true,
     })
-  }, [location])
+  }, [location, transportMode])
 
   useEffect(() => {
     if (
@@ -495,6 +510,8 @@ function MapView({
       nearestStation?.latitude === undefined ||
       nearestStation.longitude === undefined
     ) {
+      nearestMarker.current?.remove()
+      nearestMarker.current = null
       return
     }
 
@@ -552,7 +569,13 @@ function MapView({
     const controller = new AbortController()
     onWalkingRoute(null, null)
 
-    getWalkingRoute(location, stationLocation, controller.signal)
+    const costing = transportMode === 'walking'
+      ? 'pedestrian'
+      : transportMode === 'motorcycle'
+        ? 'motor_scooter'
+        : 'bus'
+
+    getTravelRoute(location, stationLocation, costing, controller.signal)
       .then((route) => {
         if (!map.current) {
           return
@@ -564,10 +587,10 @@ function MapView({
             point.longitude,
           ]),
           {
-            color: '#171717',
+            color: transportMode === 'walking' ? '#171717' : '#555550',
             weight: 4,
             opacity: 0.75,
-            dashArray: '7 7',
+            dashArray: transportMode === 'walking' ? '7 7' : '12 8',
             lineCap: 'round',
           },
         ).addTo(map.current)
@@ -580,7 +603,7 @@ function MapView({
       })
 
     return () => controller.abort()
-  }, [location, nearestStation, onWalkingRoute])
+  }, [location, nearestStation, onWalkingRoute, transportMode])
 
   return <div className="map-view" ref={mapElement} aria-label="Metro Manila map" />
 }
@@ -588,13 +611,14 @@ function MapView({
 function App() {
   const [activeView, setActiveView] = useState<AppView>('map')
   const { location, status, error, requestLocation } = useGeolocation()
+  const [locationVisible, setLocationVisible] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [searchActive, setSearchActive] = useState(false)
   const [searchStatus, setSearchStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [searchError, setSearchError] = useState<string | null>(null)
   const [selectedLocation, setSelectedLocation] = useState<Coordinates | null>(null)
-  const activeLocation = selectedLocation ?? location
+  const activeLocation = selectedLocation ?? (locationVisible ? location : null)
   const activeNearest = activeLocation
     ? findNearestStation(activeLocation, stations)
     : undefined
@@ -615,6 +639,15 @@ function App() {
   const handleMapLocationSelect = useCallback((point: Coordinates) => {
     setSelectedLocation(point)
     setSelectedStation(null)
+    setSearchResults([])
+    setSearchActive(false)
+    setSearchError(null)
+  }, [])
+  const clearLocation = useCallback(() => {
+    setSelectedLocation(null)
+    setLocationVisible(false)
+    setSelectedStation(null)
+    setSearchQuery('')
     setSearchResults([])
     setSearchActive(false)
     setSearchError(null)
@@ -775,6 +808,7 @@ function App() {
             onWalkingRoute={handleWalkingRoute}
             onStationSelect={handleStationSelect}
             onMapLocationSelect={handleMapLocationSelect}
+            transportMode={transportMode}
           />
           <div className="map-legend" aria-label="Map legend">
             <p>Map key</p>
@@ -810,12 +844,21 @@ function App() {
           <button
             className="primary-action"
             type="button"
-            onClick={requestLocation}
+            onClick={() => {
+              setLocationVisible(true)
+              requestLocation()
+            }}
             disabled={status === 'loading'}
           >
             <span aria-hidden="true">⌖</span>
             {status === 'loading' ? 'Finding your location…' : 'Use my location'}
           </button>
+
+          {activeLocation && (
+            <button className="clear-location" type="button" onClick={clearLocation}>
+              Remove selected location
+            </button>
+          )}
 
           {activeNearest && (
             <div className="nearest-card">
@@ -827,7 +870,7 @@ function App() {
 
           {activeNearest && (
             <div className="walking-card">
-              <p className="eyebrow">Travel mode to nearest stop</p>
+              <p className="eyebrow">Route options to nearest stop</p>
               <div className="transport-options" role="group" aria-label="Travel mode">
                 {([
                   ['walking', 'Walk'],
@@ -840,6 +883,7 @@ function App() {
                     className={transportMode === mode ? 'active' : ''}
                     type="button"
                     key={mode}
+                    aria-pressed={transportMode === mode}
                     onClick={() => setTransportMode(mode)}
                   >
                     {label}
@@ -864,6 +908,11 @@ function App() {
                       ? `${(walkingRoute.distanceMeters / 1000).toFixed(1)} km walking`
                       : `${transportEstimate.distanceKm.toFixed(1)} km estimate to the stop`}
                   </span>
+                  <small className="route-through">
+                    Passing through: {transportMode === 'mixed'
+                      ? `your location → jeepney connection → bus connection → ${activeNearest.station.name}`
+                      : `your location → ${activeNearest.station.name}`}
+                  </small>
                   {transportMode === 'mixed' && (
                     <small>Estimated transfer: jeepney to a convenient bus connection, then continue to the stop.</small>
                   )}

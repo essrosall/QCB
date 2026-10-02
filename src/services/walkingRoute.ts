@@ -41,6 +41,15 @@ export async function getWalkingRoute(
   to: Coordinates,
   signal?: AbortSignal,
 ): Promise<WalkingRoute> {
+  return getTravelRoute(from, to, 'pedestrian', signal)
+}
+
+export async function getTravelRoute(
+  from: Coordinates,
+  to: Coordinates,
+  costing: 'pedestrian' | 'motor_scooter' | 'bus',
+  signal?: AbortSignal,
+): Promise<WalkingRoute> {
   const response = await fetch('https://valhalla1.openstreetmap.de/route', {
     method: 'POST',
     signal,
@@ -50,7 +59,7 @@ export async function getWalkingRoute(
         { lat: from.latitude, lon: from.longitude },
         { lat: to.latitude, lon: to.longitude },
       ],
-      costing: 'pedestrian',
+      costing,
       units: 'kilometers',
     }),
   })

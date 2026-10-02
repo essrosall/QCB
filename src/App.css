@@ -235,6 +235,49 @@
   font-weight: 800;
 }
 
+.station-marker-0 {
+  border-color: #171717;
+}
+
+.station-marker-1 {
+  border-color: #4b5563;
+}
+
+.station-marker-2 {
+  border-color: #6b4f3a;
+}
+
+.station-marker-3 {
+  border-color: #49653c;
+}
+
+.station-marker-4 {
+  border-color: #66527a;
+}
+
+.location-marker {
+  display: grid;
+  place-items: center;
+  border: 2px solid #171717;
+  border-radius: 50%;
+  color: #171717;
+  background: #fff;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.location-marker-motorcycle {
+  border-radius: 6px;
+}
+
+.location-marker-bus {
+  border-radius: 3px;
+}
+
+.location-marker-mixed {
+  border-style: dashed;
+}
+
 .swap-button {
   width: 34px;
   height: 34px;
@@ -249,6 +292,7 @@
 .swap-button:focus-visible {
   color: #fff;
   background: #171717;
+  opacity: 1;
 }
 
 .fare-route-label {
@@ -673,6 +717,7 @@ h2 {
   background: #fff;
   cursor: pointer;
   font-size: 0.68rem;
+  opacity: 0.58;
 }
 
 .transport-options button.active,
@@ -688,6 +733,30 @@ h2 {
   color: #6b6b67;
   font-size: 0.7rem;
   line-height: 1.4;
+}
+
+.route-through {
+  border-top: 1px solid #e3e3df;
+  padding-top: 9px;
+}
+
+.clear-location {
+  width: calc(100% - 52px);
+  margin: 10px 26px 0;
+  border: 1px solid #c9c9c5;
+  padding: 9px 12px;
+  color: #383835;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.clear-location:hover,
+.clear-location:focus-visible {
+  border-color: #171717;
+  color: #fff;
+  background: #171717;
 }
 
 .nearest-card .eyebrow {
